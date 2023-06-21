@@ -11,10 +11,6 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { title } from "process";
 
 export const MainView = () => {
-    // const storedUser = localStorage.getItem("user");
-    //const storedToken = localStorage.getItem('token');
-
-    // code workaround as JSON was returning undefined
     const storedUser = null;
     const storedstoredUser = localStorage.getItem("user");
     if (storedstoredUser) {
