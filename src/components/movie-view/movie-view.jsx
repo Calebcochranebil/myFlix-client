@@ -8,8 +8,8 @@ export const MovieView = ({ user, movies }) => {
     const movie = movies.find((b) => b.id === movieId);
     const token = localStorage.getItem("token");
 
-    //code workaround for storedUser error
-    const storedUser = null;
+    // code workaround for storedUser error
+    let storedUser = null; // Change const to let
     const storedstoredUser = localStorage.getItem("user");
     if (storedstoredUser) {
         try {
