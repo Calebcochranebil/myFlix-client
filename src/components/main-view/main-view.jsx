@@ -11,7 +11,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { title } from "process";
 
 export const MainView = () => {
-    const storedUser = null;
+    let storedUser = null;
     const storedstoredUser = localStorage.getItem("user");
     if (storedstoredUser) {
         try {
