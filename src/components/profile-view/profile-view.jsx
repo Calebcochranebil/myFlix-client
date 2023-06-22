@@ -4,18 +4,20 @@ import { UserInfo } from "./user-info";
 import { useParams } from "react-router";
 import { Card, Container, Col, Row, Button, Form } from "react-bootstrap";
 import "./profile-view.scss";
+import moment from "moment";
 
 export const ProfileView = ({ movies }) => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
     //const [updatedUser, setUpdatedUser] = useState(false);
     const { movieId } = useParams();
-    const [username, setUsername] = useState("");
+    const [username, setUsername] = useState(storedUser.Username);
     const [password, setPassword] = useState("");
-    const [email, setEmail] = useState("");
-    const [birthday, setBirthday] = useState("");
+    const [email, setEmail] = useState(storedUser.Email);
+    const [birthday, setBirthday] = useState(storedUser.Birthday);
     const token = localStorage.getItem("token");
     const [showForm, setShowForm] = useState(false);
     //const storedUser = null;
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+
     console.log("user profile view", storedUser);
 
     // apply filter to favorite movie list
@@ -28,19 +30,18 @@ export const ProfileView = ({ movies }) => {
     const handleUpdate = (e) => {
         e.preventDefault();
 
-        const data = {
-            Username: username,
-            Password: password,
-            Email: email,
-            Birthday: birthday,
-        };
+        const data = {};
+        if (username !== storedUser.Username) data.Username = username;
+        if (password) data.Password = password;
+        if (email !== storedUser.Email) data.Email = email;
+        if (birthday !== storedUser.Birthday) data.Birthday = birthday;
 
         console.log(data);
 
         fetch(
             `https://myflixapi-82562-7875d5870818.herokuapp.com/users/${storedUser.Username}`,
             {
-                method: "PUT",
+                method: "PATCH",
 
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -54,7 +55,7 @@ export const ProfileView = ({ movies }) => {
                 console.log(data);
                 localStorage.setItem("user", JSON.stringify(data.user));
                 alert("Update successful, please log in again!");
-                //localStorage.clear();
+                localStorage.clear();
                 window.location.reload();
             })
             .catch((e) => {
@@ -159,6 +160,12 @@ export const ProfileView = ({ movies }) => {
                                     <Form.Group controlId="updatePassword">
                                         <Form.Label style={{ marginTop: 15 }}>
                                             Password:
+                                            <span
+                                                className="required"
+                                                style={{ color: "red" }}
+                                            >
+                                                *
+                                            </span>
                                         </Form.Label>
                                         <Form.Control
                                             type="password"
@@ -166,7 +173,7 @@ export const ProfileView = ({ movies }) => {
                                             onChange={(event) =>
                                                 setPassword(event.target.value)
                                             }
-                                            placeholder="Password"
+                                            placeholder="password"
                                         />
                                     </Form.Group>
 
@@ -190,7 +197,9 @@ export const ProfileView = ({ movies }) => {
                                         </Form.Label>
                                         <Form.Control
                                             type="date"
-                                            value={birthday}
+                                            value={moment(birthday).format(
+                                                "MM-DD-YYYY"
+                                            )}
                                             onChange={(event) =>
                                                 setBirthday(event.target.value)
                                             }
@@ -200,11 +209,24 @@ export const ProfileView = ({ movies }) => {
                                     <Button
                                         variant="secondary"
                                         type="submit"
-                                        style={{ marginTop: 20 }}
+                                        style={{
+                                            marginTop: 20,
+                                            marginBottom: 10,
+                                        }}
                                         onClick={handleUpdate}
                                     >
                                         Save Changes
                                     </Button>
+
+                                    <Form.Text
+                                        className="required"
+                                        style={{ color: "red" }}
+                                    >
+                                        <p>
+                                            {" "}
+                                            <span>*</span>Required field{" "}
+                                        </p>
+                                    </Form.Text>
                                 </Form>
                             </Card.Body>
                         </Card>
