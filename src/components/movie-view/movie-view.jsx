@@ -50,10 +50,9 @@ export const MovieView = ({ user, movies }) => {
                                     <div>
                                         <span>Release: </span>
                                         <span>
-                                            {new Date(movie.release)
-                                                .toISOString()
-                                                .slice(0, 10)
-                                                .replace(/-/g, "/")}
+                                            {new Date(
+                                                movie.release
+                                            ).getFullYear()}
                                         </span>
                                     </div>
                                     <Link to={`/`}>
