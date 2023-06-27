@@ -12,21 +12,20 @@ import { title } from "process";
 
 export const MainView = () => {
     let storedUser = null;
-    const storedstoredUser = localStorage.getItem("user");
-    if (storedstoredUser) {
+    const storedUserJSON = localStorage.getItem("user");
+    if (storedUserJSON) {
         try {
-            storedUser = JSON.parse(storedstoredUser);
+            storedUser = JSON.parse(storedUserJSON);
         } catch (e) {}
     }
-    //const storedUser = JSON.parse(localStorage.getItem("user")); // JSON is undefined now?
+
     const storedToken = localStorage.getItem("token");
     const [user, setUser] = useState(storedUser ? storedUser : null);
     const [token, setToken] = useState(storedToken ? storedToken : null);
-    const [movies, setMovies] = useState([]); // existing state for all movie data
+    const [movies, setMovies] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
-    const [filteredMovies, setFilteredMovies] = useState(movies);
+    const [filteredMovies, setFilteredMovies] = useState([]);
 
-    // create search bar handle
     const handleSearch = (event) => {
         const searchQuery = event.target.value.toLowerCase();
         setSearchTerm(searchQuery);
@@ -38,41 +37,33 @@ export const MainView = () => {
         setFilteredMovies(filtered);
     };
 
-    // useEffect hook allows React to perform side effects in component e.g fetching data
     useEffect(() => {
         if (!token) {
             return;
         }
-        // set loading before sending API request
-        //setLoading(true);
+
         fetch(`https://myflixapi-82562-7875d5870818.herokuapp.com/movies`, {
             headers: { Authorization: `Bearer ${token}` },
         })
             .then((response) => response.json())
             .then((data) => {
-                // stops loading after response received
-                //setLoading(false);
                 console.log("data", data);
 
-                const moviesFromApi = data.map((movie) => {
-                    return {
-                        // value names match to API database
-                        id: movie._id,
-                        title: movie.Title,
-                        image: movie.ImagePath,
-                        description: movie.Description,
-                        genre: movie.Genre.Name,
-                        director: movie.Director.Name,
-                        release: movie.Release,
-                    };
-                });
+                const moviesFromApi = data.map((movie) => ({
+                    id: movie._id,
+                    title: movie.Title,
+                    image: movie.ImagePath,
+                    description: movie.Description,
+                    genre: movie.Genre.Name,
+                    director: movie.Director.Name,
+                    release: movie.Release,
+                }));
+
                 setMovies(moviesFromApi);
-                setFilteredMovies(moviesFromApi); //second state, using same fetched data
+                setFilteredMovies(moviesFromApi);
             });
     }, [token]);
 
-    // 'if' statements are replaced by ternary operators '?:' - if true, if false, and combined into one peice of code wrapped in Row
-    console.log("test", user);
     return (
         <BrowserRouter>
             <NavigationBar
@@ -91,7 +82,7 @@ export const MainView = () => {
                         element={
                             <>
                                 {user ? (
-                                    <Navigate to="/" /> // if user is validated redirects to homepage
+                                    <Navigate to="/" />
                                 ) : (
                                     <Col md={5}>
                                         <SignupView />
@@ -105,7 +96,7 @@ export const MainView = () => {
                         element={
                             <>
                                 {user ? (
-                                    <Navigate to="/" /> // if user is validated redirects to homepage
+                                    <Navigate to="/" />
                                 ) : (
                                     <Col md={5}>
                                         <LoginView
@@ -124,7 +115,7 @@ export const MainView = () => {
                         element={
                             <>
                                 {!user ? (
-                                    <Navigate to="/login" replace /> // if user is not validated redirects to login page
+                                    <Navigate to="/login" replace />
                                 ) : movies.length === 0 ? (
                                     <Col>The list is empty!</Col>
                                 ) : (
@@ -141,7 +132,7 @@ export const MainView = () => {
                         }
                     />
                     <Route
-                        path="/users" //"/profile"
+                        path="/users"
                         element={
                             <>
                                 {!user ? (
@@ -164,8 +155,6 @@ export const MainView = () => {
                             <>
                                 {!user ? (
                                     <Navigate to="/login" replace />
-                                ) : filteredMovies.length === 0 ? (
-                                    <Col>The list is empty!</Col>
                                 ) : (
                                     <>
                                         <Row>
@@ -178,22 +167,30 @@ export const MainView = () => {
                                             >
                                                 <input
                                                     type="text"
-                                                    class="form-control form-control-lg"
+                                                    className="form-control form-control-lg"
                                                     placeholder="Search Movies"
                                                     value={searchTerm}
                                                     onChange={handleSearch}
-                                                ></input>
+                                                />
                                             </Col>
                                         </Row>
-                                        {filteredMovies.map((movie) => (
-                                            <Col
-                                                className="mb-4"
-                                                key={movie._id}
-                                                md={3}
-                                            >
-                                                <MovieCard movie={movie} />
-                                            </Col>
-                                        ))}
+                                        {filteredMovies.length === 0 ? (
+                                            <Col>The list is empty!</Col>
+                                        ) : (
+                                            <>
+                                                {filteredMovies.map((movie) => (
+                                                    <Col
+                                                        className="mb-4"
+                                                        key={movie.id}
+                                                        md={3}
+                                                    >
+                                                        <MovieCard
+                                                            movie={movie}
+                                                        />
+                                                    </Col>
+                                                ))}
+                                            </>
+                                        )}
                                     </>
                                 )}
                             </>
